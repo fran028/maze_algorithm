@@ -89,3 +89,5 @@ Maze_algorithm/.vs/Maze_algorithm/v17/Solution.VC.db
 Maze_algorithm/out/build/x64-debug/.cmake/api/v1/reply/cache-v2-c0ee50c256e3f550bd0e.json
 Maze_algorithm/out/build/x64-debug/.cmake/api/v1/reply/cmakeFiles-v1-63213132e9a78f574c86.json
 Maze_algorithm/out/build/x64-debug/.cmake/api/v1/reply/index-2023-12-19T17-36-08-0297.json
+Maze_algorithm/.vs/Maze_algorithm/v17/ipch/AutoPCH/19342c840c0a91bf/VCTMP30656_695792.MAZE_ALGORITHM.00000000.ipch
+*.vsidx

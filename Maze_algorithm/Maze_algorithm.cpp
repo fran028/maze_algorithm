@@ -6,10 +6,8 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-using namespace std;
-
-
-
+#include <string>
+using namespace std; 
 
 class MazeCell {
 	public:
@@ -30,8 +28,15 @@ class Position {
 		}
 };
 
-vector<vector<MazeCell>> Maze;
+vector<vector<MazeCell>> Maze; 
+Position StartPosition(-1,-1);
 
+bool CheckMazeLoaded() {
+	if (Maze.size() > 0) {
+		return true;
+	}
+	return false;
+}
 
 void Menu() {
 	cout << "-------------\n";
@@ -41,25 +46,46 @@ void Menu() {
 	cout << "2) Solve Maze\n";  
 }
 
+
+
 void EndCredits() { 
 	cout << "Program closed \n";
 	cout << "Thank you for playing \n";
 	cout << "Made by: Franco Scarpettini \n"; 
+} 
+
+vector<string> SeparateStringByComa(string txt) {
+	istringstream iss(txt);
+	string value;
+	vector<string> auxValues;
+	while (getline(iss, value, ',')) {
+		auxValues.push_back(value);
+	}
+	return auxValues;
 }
 
-void optionManager( int op) {  
-	switch (op) {
-	case 0:
-		EndCredits();
-		break;
-	case 1:
-		break;
-	case 2:
-		break;
-	default:
-		cout << "The number chossen is not a valid option\n";
-		break;
-	} 
+void PrintMaze() {  
+
+	for (int y = 0; y < Maze.size(); y++) {
+		for (int x = 0; x < Maze[y].size(); x++) {
+			char state = Maze[y][x].state;
+			switch (state)
+			{
+				case 'f':
+					cout << 'F';
+					break;
+				case 's':
+					cout << 'S';
+					break;
+				case 'c':
+					cout << '  ';
+					break;
+				default:
+					cout << '[]';
+					break;
+			}
+		}
+	}
 }
 
 int LoadMazeMap() {
@@ -83,20 +109,32 @@ int LoadMazeMap() {
         cout << "Maze file does not exist";
         return 0;
     }
+
+	int finishCount = 0;
+	int startCount = 0;
     string linea;  
     while (getline(leer, linea)) {
-		istringstream iss(linea);
-		string value;
-		vector<std::string> auxValues;
-		while (getline(iss, value, ',')) {
-			auxValues.push_back(value);
+		vector<string> data = SeparateStringByComa(linea);
+		int x = stoi(data[0]);
+		int y = stoi( data[1]);
+		char archState = data[2][0];
+		 
+		if (archState == 'w') {
+			continue;
 		}
-		//check if type is not wall and only add the 'c','f' and 's' types
-		//Also check if a 's' and 'f' types exist in file (f>=1 and s>=1)
-
+		if (archState == 'f') {
+			finishCount++;
+		}
+		if (archState == 's') {
+			finishCount++;
+			StartPosition.x = x;
+			StartPosition.y = y;
+		} 
+		Maze[x][y].state = archState; 
 
     }
     leer.close();  
+	PrintMaze();
 	return 1;
 }
 
@@ -155,12 +193,82 @@ bool SolveMazeLIFO(MazeCell *cell, MazeCell *lastCell) {
 	Position nextPos = NextMove(cell, lastCell);
 	while( (nextPos.x != -1 and nextPos.y!=-1) and not salida){
 		salida = SolveMazeLIFO(&Maze[nextPos.x][nextPos.y], cell);
-		Position nextPos = NextMove(cell, lastCell);
-	} 
+		nextPos = NextMove(cell, lastCell);
+	}  
+	cell->tempMark = false;
 	return salida;
 }
 
+bool SolveMazeFIFO(MazeCell cell) {
 
+	vector<MazeCell> queue;
+	queue.push_back(cell);
+	MazeCell currentPos = queue.front();
+	MazeCell lastCell = currentPos;
+	while (currentPos.state != 'f') { 
+
+		Position nextPos = NextMove(&cell, &lastCell);
+		while ((nextPos.x != -1 and nextPos.y != -1)) {
+			queue.push_back(Maze[nextPos.x][nextPos.y]);   
+			nextPos = NextMove(&cell, &lastCell);
+		}
+
+
+		lastCell = currentPos;
+	}
+	return true;
+}
+
+int SolveOptions() {
+	if (not CheckMazeLoaded()) {
+		return 0;
+	}
+	cout << "-------------\n";
+	cout << "Solving options\n";
+	cout << "1) LIFO\n";
+	cout << "2) FIFO\n";
+	cout << "\nChoose option to solve menu: \n";
+	int resp = 0;
+	cin >> resp;
+	int xs = StartPosition.x;
+	int ys = StartPosition.y;
+	bool result = false;
+	switch (resp)
+	{
+	case 1:
+		result = SolveMazeLIFO(&Maze[xs][ys], &Maze[xs][ys]);
+		break;
+	case 2:
+		//result = SolveMazeFIFO(Maze[xs][ys]);
+		cout << "\nThis option is no available yet. Sorry :(\n";
+		break;
+	default:
+		cout << "The number chossen is not a valid option\n";
+		break;
+	}
+	return 1;
+}
+
+void optionManager(int op) {
+	int r;
+	switch (op) {
+	case 0:
+		EndCredits();
+		break;
+	case 1:
+		LoadMazeMap();
+		break;
+	case 2:
+		r = SolveOptions();
+		if (r) {
+			cout << "There is no maze loaded to be solved.\n";
+		}
+		break;
+	default:
+		cout << "The number chossen is not a valid option\n";
+		break;
+	}
+}
 
 int main(){
 	Menu();
