@@ -91,3 +91,6 @@ Maze_algorithm/out/build/x64-debug/.cmake/api/v1/reply/cmakeFiles-v1-63213132e9a
 Maze_algorithm/out/build/x64-debug/.cmake/api/v1/reply/index-2023-12-19T17-36-08-0297.json
 Maze_algorithm/.vs/Maze_algorithm/v17/ipch/AutoPCH/19342c840c0a91bf/VCTMP30656_695792.MAZE_ALGORITHM.00000000.ipch
 *.vsidx
+Maze_algorithm/.vs/cmake.db
+*.ipch
+*.json
