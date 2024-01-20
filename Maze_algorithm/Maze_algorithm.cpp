@@ -21,10 +21,17 @@ int SolveOptions() {
 	int xs = StartPosition.x;
 	int ys = StartPosition.y;
 	bool result = false;
+	//Runs the option chosen
 	switch (resp)
 	{
 	case 1:
+		cout << "Solving algorithm";
 		result = SolveMazeLIFO(&Maze[xs][ys], &Maze[xs][ys]);
+		if (result) {
+			cout << "Exit found";
+		} else {
+			cout << "Exit not found";
+		}
 		break;
 	case 2:
 		//result = SolveMazeFIFO(Maze[xs][ys]);
@@ -39,6 +46,7 @@ int SolveOptions() {
 
 void optionManager(int op) {
 	int r;
+	// Runs the menu options and prints the result
 	switch (op) {
 		case 0:
 			EndCredits();
@@ -46,8 +54,9 @@ void optionManager(int op) {
 		case 1:
 			r = LoadMazeMap(); 
 			if (r == 0) {
-				Menu();
+				cout << "Error while loading the maze"<<endl;
 			}
+			Menu();
 			break;
 		case 2:
 			r = SolveOptions();

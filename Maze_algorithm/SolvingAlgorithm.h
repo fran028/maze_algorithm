@@ -5,12 +5,51 @@
 #include <iostream>
 using namespace std;
 
+Position FirstMove(int x, int y){
+	int x1, y1;
+	//atras 
+	x1 = x;
+	y1 = y - 1;
+	if (Maze[x1][y1].state == 'w') {
+		Position nextPos(x1, y1);
+		return nextPos;
+	}
+	//derecha
+	x1 = x + 1;
+	y1 = y; 
+	if (Maze[x1][y1].state == 'w') {
+		Position nextPos(x1, y1);
+		return nextPos;
+	}
+	//adelante 
+	x1 = x;
+	y1 = y + 1;
+	if (Maze[x1][y1].state == 'w') {
+		Position nextPos(x1, y1);
+		return nextPos;
+	}
+	//izquierda 
+	x1 = x - 1;
+	y1 = y; 
+	if (Maze[x1][y1].state == 'w') {
+		Position nextPos(x1, y1);
+		return nextPos;
+	}
+}
+
 Position NextMove(MazeCell* cell, MazeCell* lastCell) {
+	int x1;
+	int y1;
+	
 	int dirH = cell->x - lastCell->x;
 	int dirV = cell->y - lastCell->y;
-	int x1 = -1;
-	int y1 = -1;
-
+	if (dirH == 0 && dirV == 0) {
+		Position f = FirstMove(cell->x, cell->y);
+		cout << "First dir" << f.x << " , " << f.y << endl;
+		dirH = cell->x - f.x;
+		dirV = cell->y - f.y;
+	}
+	cout << dirH << " , " << dirV << endl;
 	//derecha
 	if (dirH == 0) {
 		x1 = cell->x - dirV;
@@ -24,7 +63,6 @@ Position NextMove(MazeCell* cell, MazeCell* lastCell) {
 		Position nextPos(x1, y1);
 		return nextPos;
 	}
-
 	//adelante 
 	x1 = cell->x + dirV;
 	y1 = cell->y + dirH;
@@ -32,7 +70,6 @@ Position NextMove(MazeCell* cell, MazeCell* lastCell) {
 		Position nextPos(x1, y1);
 		return nextPos;
 	}
-
 	//izquierda
 	if (dirH == 0) {
 		x1 = cell->x + dirV;
@@ -47,22 +84,32 @@ Position NextMove(MazeCell* cell, MazeCell* lastCell) {
 		return nextPos;
 	}
 
+	x1 = -1;
+	y1 = -1;
+
 	Position nextPos(x1, y1);
 	return nextPos;
 }
 
 
 bool SolveMazeLIFO(MazeCell* cell, MazeCell* lastCell) {
+	cout << endl;
+	cout << "Last position " << lastCell->x << " , " << lastCell->y << endl;
+	cout << "Current position " << cell->x << " , " << cell->y << endl;
 	if (cell->state == 'f') {
+		cout << "Exit founded on " << cell->x << " , " << cell->y << endl;
 		return true;
 	}
 	bool salida = false;
 	cell->tempMark = true;
 	Position nextPos = NextMove(cell, lastCell);
+	cout << "Next position " << nextPos.x << " , " << nextPos.y << endl;
 	while ((nextPos.x != -1 and nextPos.y != -1) and not salida) {
 		salida = SolveMazeLIFO(&Maze[nextPos.x][nextPos.y], cell);
 		nextPos = NextMove(cell, lastCell);
+		cout << "Next position " << nextPos.x << " , " << nextPos.y << endl;
 	}
+
 	cell->tempMark = false;
 	return salida;
 }

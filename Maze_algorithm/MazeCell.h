@@ -7,6 +7,13 @@ class MazeCell {
 		bool tempMark;//treu o false
 		int x; //int
 		int y; //int
+
+		MazeCell(char newState, int newX, int newY) {
+			state = newState;
+			tempMark = false;
+			x = newX;
+			y = newY;
+		}
 };
 
 class Position {

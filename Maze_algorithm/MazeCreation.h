@@ -14,26 +14,36 @@ Position StartPosition(-1, -1);
 vector<vector<MazeCell>> Maze;
 
 void PrintMaze() {
+	cout << "Imprimiendo laberinto" << endl;
+	cout << "-------------------------------------------" << endl;
+	cout << "+|";
+	for (int j = 0; j < Maze.size(); j++) {
+		cout << j << "|";
+	}
+	cout << endl;
 	for (int y = 0; y < Maze.size(); y++) {
+		cout << y << "|";
 		for (int x = 0; x < Maze[y].size(); x++) {
 			char state = Maze[y][x].state;
 			switch (state)
 			{
 			case 'f':
-				cout << 'F';
+				cout << " F";
 				break;
 			case 's':
-				cout << 'S';
+				cout << " S";
 				break;
 			case 'c':
-				cout << '  ';
+				cout << "  ";
 				break;
 			default:
-				cout << '[]';
+				cout << "[]";
 				break;
 			}
 		}
+		cout << endl;
 	}
+	cout << "Laberinto impreso" << endl;
 }
 
 vector<string> SeparateStringByComa(string txt) {
@@ -47,7 +57,6 @@ vector<string> SeparateStringByComa(string txt) {
 }
 
 bool LoadMazeMap() {
-	string filename;
 	int auxOp = -1;
 	vector<string> files = GetMazesFiles();
 	if (files.size() < 1) {
@@ -58,30 +67,44 @@ bool LoadMazeMap() {
 		cout << i << ") " << files[i] << endl;
 		//use assign to fill all the maze with default wall
 	}
-	cout << "Choose maze: ";
+	cout << files.size() << " files founded" <<endl;
+	cout << "Choose maze: " << endl;
 	do{
 		cin >> auxOp;
-	} while (auxOp >0 and auxOp< files.size());
+	} while ((auxOp < 0) and (auxOp >= files.size()));
 
-	filename = files[auxOp];
+	cout << "Option chosen: " << auxOp << " of " << files.size() << endl;
+	string filename = files[auxOp];
 
 	fstream leer(filename, ios::in);
 	if (not leer.is_open()) {
 		cout << "There is no file with name '" << filename << "'\n";
 		return false;
 	}
-	int col, row;
-	cout << "Enter number of columns of Maze: ";
-	cin >> col;
-	cout << "Enter number of rows of Maze: ";
-	cin >> row;
-	Maze.reserve(row);
 
-	for (int i = 0; i < Maze.size(); ++i) {
-		Maze[i].reserve(col);
-		//use assign to fill all the maze with default wall
+	if (Maze.size() > 0) {
+		cout << "Maze cleared";
+		Maze.clear();
 	}
 
+	int colMaze;
+	int rowMaze;
+	cout << "Enter number of columns of Maze: ";
+	cin >> colMaze;
+	cout << "Enter number of rows of Maze: ";
+	cin >> rowMaze; 
+	Maze.resize(colMaze+2);
+	if (Maze.size() < 3) {
+		cout << "Error in maze making (Reserve => " << Maze.size() << " )" << endl;
+		return 0;
+	}
+
+	MazeCell defaultMazeCell('w', 0, 0);
+	for (int i = 0; i < Maze.size(); ++i) {
+		Maze[i].resize(colMaze+2, defaultMazeCell);
+		//use assign to fill all the maze with default wall
+	}
+	
 	int finishCount = 0;
 	int startCount = 0;
 	string linea;
@@ -89,6 +112,8 @@ bool LoadMazeMap() {
 		vector<string> data = SeparateStringByComa(linea);
 		int x = stoi(data[0]);
 		int y = stoi(data[1]);
+		Maze[x][y].x = x;
+		Maze[x][y].y = y;
 		char archState = data[2][0];
 
 		if (archState == 'w') {
@@ -98,7 +123,7 @@ bool LoadMazeMap() {
 			finishCount++;
 		}
 		if (archState == 's') {
-			finishCount++;
+			startCount++;
 			StartPosition.x = x;
 			StartPosition.y = y;
 		}
@@ -106,6 +131,10 @@ bool LoadMazeMap() {
 
 	}
 	leer.close();
+	if (finishCount < 1 or startCount < 1) {
+		return false;
+	}
+	cout << "Starting Position:" << StartPosition.x << "," << StartPosition.y;
 	PrintMaze();
 	return true;
 }
