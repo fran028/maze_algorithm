@@ -25,13 +25,17 @@ int SolveOptions() {
 	switch (resp)
 	{
 	case 1:
-		cout << "Solving algorithm";
+		cout << "Solving algorithm" << endl;
 		result = SolveMazeLIFO(&Maze[xs][ys], &Maze[xs][ys]);
 		if (result) {
-			cout << "Exit found";
+			cout << "Exit found" << endl;
 		} else {
-			cout << "Exit not found";
+			cout << "Exit not found"<< endl;
 		}
+		cout << "Stack: ";
+		PrintStack(); 
+		cout << "Solved maze: " << endl;
+		PrintMaze();
 		break;
 	case 2:
 		//result = SolveMazeFIFO(Maze[xs][ys]);

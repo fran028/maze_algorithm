@@ -1,9 +1,30 @@
 #pragma once 
+
+#include <stack> 
+#include <iostream>
+#include <queue> 
+
 #include "MazeCell.h" 
 #include "MazeCreation.h" 
 
-#include <iostream>
 using namespace std;
+
+
+stack<MazeCell> stackLifo;
+queue<MazeCell> queueFifo;
+
+void PrintStack() {
+	if (not stackLifo.empty()) {
+		MazeCell top = stackLifo.top();
+		stackLifo.pop();
+		PrintStack();
+		cout << "(" << top.x << "," << top.y << ")";
+	} else {
+		cout << endl;
+	}
+}
+
+
 
 Position FirstMove(int x, int y){
 	int x1, y1;
@@ -44,29 +65,30 @@ Position NextMove(MazeCell* cell, MazeCell* lastCell) {
 	int dirH = cell->x - lastCell->x;
 	int dirV = cell->y - lastCell->y;
 	if (dirH == 0 && dirV == 0) {
-		Position f = FirstMove(cell->x, cell->y);
-		cout << "First dir" << f.x << " , " << f.y << endl;
+		Position f = FirstMove(cell->x, cell->y); 
 		dirH = cell->x - f.x;
-		dirV = cell->y - f.y;
-	}
-	cout << dirH << " , " << dirV << endl;
+		dirV = cell->y - f.y; 
+	} 
+	
 	//derecha
 	if (dirH == 0) {
 		x1 = cell->x - dirV;
 		y1 = cell->y;
-	}
-	else {
+	} else {
 		x1 = cell->x;
-		y1 = cell->y - dirH;
+		y1 = cell->y + dirH;
 	}
-	if (Maze[x1][y1].state == 'c' && not Maze[x1][y1].tempMark) {
+	if (Maze[x1][y1].state != 'w' && not Maze[x1][y1].tempMark) {
+		//cout << "pre derecha " << x1 << " , " << y1 << " is " << Maze[x1][y1].state << " and " << Maze[x1][y1].tempMark << endl;
 		Position nextPos(x1, y1);
 		return nextPos;
 	}
+	
 	//adelante 
-	x1 = cell->x + dirV;
-	y1 = cell->y + dirH;
-	if (Maze[x1][y1].state == 'c' && not Maze[x1][y1].tempMark) {
+	x1 = cell->x + dirH;
+	y1 = cell->y + dirV;
+	if (Maze[x1][y1].state != 'w' && not Maze[x1][y1].tempMark) {
+		//cout << "pre adelante " << x1 << " , " << y1 << " is " << Maze[x1][y1].state << " and " << Maze[x1][y1].tempMark << endl;
 		Position nextPos(x1, y1);
 		return nextPos;
 	}
@@ -77,25 +99,28 @@ Position NextMove(MazeCell* cell, MazeCell* lastCell) {
 	}
 	else {
 		x1 = cell->x;
-		y1 = cell->y + dirH;
+		y1 = cell->y - dirH;
 	}
-	if (Maze[x1][y1].state == 'c' && not Maze[x1][y1].tempMark) {
+	
+	if (Maze[x1][y1].state != 'w' && not Maze[x1][y1].tempMark) {
+		//cout << "izquierda " << x1 << " , " << y1 << " is " << Maze[x1][y1].state << " and " << Maze[x1][y1].tempMark << endl;
 		Position nextPos(x1, y1);
 		return nextPos;
 	}
-
+	//cout << "Saco" << endl;
+	stackLifo.pop();
+	
 	x1 = -1;
 	y1 = -1;
-
+	//cout << "Return back" << endl;
 	Position nextPos(x1, y1);
 	return nextPos;
 }
 
 
-bool SolveMazeLIFO(MazeCell* cell, MazeCell* lastCell) {
-	cout << endl;
-	cout << "Last position " << lastCell->x << " , " << lastCell->y << endl;
-	cout << "Current position " << cell->x << " , " << cell->y << endl;
+bool SolveMazeLIFO(MazeCell* cell, MazeCell* lastCell) { 
+	//cout << "Pongo" << endl;
+	stackLifo.push(Maze[cell->x][cell->y]);
 	if (cell->state == 'f') {
 		cout << "Exit founded on " << cell->x << " , " << cell->y << endl;
 		return true;
@@ -103,14 +128,14 @@ bool SolveMazeLIFO(MazeCell* cell, MazeCell* lastCell) {
 	bool salida = false;
 	cell->tempMark = true;
 	Position nextPos = NextMove(cell, lastCell);
-	cout << "Next position " << nextPos.x << " , " << nextPos.y << endl;
+	//cout << "Next position " << nextPos.x << " , " << nextPos.y << endl;
 	while ((nextPos.x != -1 and nextPos.y != -1) and not salida) {
 		salida = SolveMazeLIFO(&Maze[nextPos.x][nextPos.y], cell);
-		nextPos = NextMove(cell, lastCell);
-		cout << "Next position " << nextPos.x << " , " << nextPos.y << endl;
-	}
-
-	cell->tempMark = false;
+		if (not salida) {
+			nextPos = NextMove(cell, lastCell);
+			//cout << "Next position " << nextPos.x << " , " << nextPos.y << endl;
+		}
+	} 
 	return salida;
 }
 

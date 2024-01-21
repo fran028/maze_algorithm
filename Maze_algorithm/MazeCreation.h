@@ -1,5 +1,4 @@
-#pragma once
-#include "MazeCell.h"  
+#pragma once 
 #include <fstream> 
 #include <string> 
 #include <sstream> 
@@ -13,18 +12,19 @@ Position StartPosition(-1, -1);
 
 vector<vector<MazeCell>> Maze;
 
+
 void PrintMaze() {
 	cout << "Imprimiendo laberinto" << endl;
 	cout << "-------------------------------------------" << endl;
-	cout << "+|";
-	for (int j = 0; j < Maze.size(); j++) {
+	cout << " +|"; 
+	for (int j = 0; j < Maze[0].size(); j++) { 
 		cout << j << "|";
 	}
 	cout << endl;
 	for (int y = 0; y < Maze.size(); y++) {
-		cout << y << "|";
+		cout << setw(2) << y << "|";
 		for (int x = 0; x < Maze[y].size(); x++) {
-			char state = Maze[y][x].state;
+			char state = Maze[x][y].state;
 			switch (state)
 			{
 			case 'f':
@@ -34,7 +34,12 @@ void PrintMaze() {
 				cout << " S";
 				break;
 			case 'c':
-				cout << "  ";
+				if (Maze[x][y].tempMark) {
+					cout << " x";
+				}
+				else { 
+					cout << "  ";
+				}
 				break;
 			default:
 				cout << "[]";
@@ -128,7 +133,6 @@ bool LoadMazeMap() {
 			StartPosition.y = y;
 		}
 		Maze[x][y].state = archState;
-
 	}
 	leer.close();
 	if (finishCount < 1 or startCount < 1) {
