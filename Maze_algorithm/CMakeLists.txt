@@ -11,8 +11,21 @@ endif()
 
 project ("Maze_algorithm")
 
+set(lista_archivos
+
+  main.cpp
+  Maze_algorithm.h  
+  MazeCell.h  
+  SolvingAlgorithm.h 
+  MazeCreation.h 
+  Menu.h 
+  MazesManager.h 
+  Timer.h
+
+) 
+
 # Add source to this project's executable.
-add_executable (Maze_algorithm "main.cpp" "Maze_algorithm.h"  "MazeCell.h"  "SolvingAlgorithm.h" "MazeCreation.h" "Menu.h" "MazesManager.h")
+add_executable (Maze_algorithm ${lista_archivos} )
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Maze_algorithm PROPERTY CXX_STANDARD 20)

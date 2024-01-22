@@ -5,15 +5,24 @@ using namespace std;
 
 
 void Menu() {
-	cout << "-------------\n";
-	cout << "MAIN MENU\n";
-	cout << "0) Exit\n";
-	cout << "1) Load Maze\n";
-	cout << "2) Solve Maze\n";
+	cout << "-------------------------------------------" << endl;
+	cout << "MAIN MENU" << endl;
+	cout << "0) Exit" << endl;
+	cout << "1) Load Maze" << endl;
+	cout << "2) Solve Maze" << endl;
 }
 
 void EndCredits() {
-	cout << "Program closed \n";
-	cout << "Thank you for playing \n";
-	cout << "Made by: Franco Scarpettini \n";
+	cout << "-------------------------------------------" << endl;
+	cout << "Program closed" << endl;
+	cout << "Thank you for playing" << endl;
+	cout << "Made by: Franco Scarpettini" << endl;
+}
+
+void Options() {
+	cout << "-------------------------------------------" << endl;
+	cout << "Solving options" << endl;
+	cout << "1) LIFO" << endl;
+	cout << "2) FIFO" << endl;
+	cout << "Choose option to solve menu:";
 }

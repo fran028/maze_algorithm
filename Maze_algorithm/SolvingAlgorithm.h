@@ -2,65 +2,92 @@
 
 #include <stack> 
 #include <iostream>
-#include <queue> 
-
+#include <queue>   
 #include "MazeCell.h" 
 #include "MazeCreation.h" 
 
 using namespace std;
 
-
 stack<MazeCell> stackLifo;
-queue<MazeCell> queueFifo;
+queue<QueueElement> queueFifo;  
+
+
+int CountStepInMaze() {
+	int totalAmount = 0;
+	for (int yPosition = 0; yPosition < Maze.size(); yPosition++) {
+		for (int xPosition = 0; xPosition < Maze[y].size(); xPosition++) {
+			if (Maze[xPosition][yPosition].passedBy) {
+				totalAmount++;
+			}
+		}
+	}
+	return totalAmount;
+}
+ 
 
 void PrintStack() {
 	if (not stackLifo.empty()) {
-		MazeCell top = stackLifo.top();
+		MazeCell topCell = stackLifo.top();
 		stackLifo.pop();
 		PrintStack();
-		cout << "(" << top.x << "," << top.y << ")";
+		cout << "(" << topCell.x << "," << topCell.y << ")";
 	} else {
 		cout << endl;
 	}
 }
 
+void PrintQueue() {
+	while (not queueFifo.empty())
+	{
+		MazeCell currentPosition = queueFifo.front().currentPosition;
+		cout << '(' << currentPosition.x << '-' << currentPosition.y << ')';
+		queueFifo.pop();
+	} 
+	cout << endl;
+}
+
 
 
 Position FirstMove(int x, int y){
-	int x1, y1;
+	int positionX, positionY;
 	//atras 
-	x1 = x;
-	y1 = y - 1;
-	if (Maze[x1][y1].state == 'w') {
-		Position nextPos(x1, y1);
-		return nextPos;
+	positionX = x;
+	positionY = y - 1;
+	if (Maze[positionX][positionY].state == 'w') {
+		Position lastPosition(positionX, positionY);
+		return lastPosition;
 	}
 	//derecha
-	x1 = x + 1;
-	y1 = y; 
-	if (Maze[x1][y1].state == 'w') {
-		Position nextPos(x1, y1);
-		return nextPos;
+	positionX = x + 1;
+	positionY = y;
+	if (Maze[positionX][positionY].state == 'w') {
+		Position lastPosition(positionX, positionY);
+		return lastPosition;
 	}
 	//adelante 
-	x1 = x;
-	y1 = y + 1;
-	if (Maze[x1][y1].state == 'w') {
-		Position nextPos(x1, y1);
-		return nextPos;
+	positionX = x;
+	positionY = y + 1;
+	if (Maze[positionX][positionY].state == 'w') {
+		Position lastPosition(positionX, positionY);
+		return lastPosition;
 	}
 	//izquierda 
-	x1 = x - 1;
-	y1 = y; 
-	if (Maze[x1][y1].state == 'w') {
-		Position nextPos(x1, y1);
-		return nextPos;
+	positionX = x - 1;
+	positionY = y;
+	if (Maze[positionX][positionY].state == 'w') {
+		Position lastPosition(positionX, positionY);
+		return lastPosition;
 	}
+
+	positionX = x;
+	positionY = y - 1;
+	Position lastPosition(positionX, positionY);
+	return lastPosition;
 }
 
-Position NextMove(MazeCell* cell, MazeCell* lastCell) {
-	int x1;
-	int y1;
+Position NextPossibleMove(MazeCell* cell, MazeCell* lastCell) {
+	int positionX;
+	int positionY;
 	
 	int dirH = cell->x - lastCell->x;
 	int dirV = cell->y - lastCell->y;
@@ -72,133 +99,90 @@ Position NextMove(MazeCell* cell, MazeCell* lastCell) {
 	
 	//derecha
 	if (dirH == 0) {
-		x1 = cell->x - dirV;
-		y1 = cell->y;
+		positionX = cell->x - dirV;
+		positionY = cell->y;
 	} else {
-		x1 = cell->x;
-		y1 = cell->y + dirH;
+		positionX = cell->x;
+		positionY = cell->y + dirH;
 	}
-	if (Maze[x1][y1].state != 'w' && not Maze[x1][y1].tempMark) {
-		//cout << "pre derecha " << x1 << " , " << y1 << " is " << Maze[x1][y1].state << " and " << Maze[x1][y1].tempMark << endl;
-		Position nextPos(x1, y1);
+	if (Maze[positionX][positionY].state != 'w' && not Maze[positionX][positionY].passedBy) {
+		Position nextPos(positionX, positionY);
 		return nextPos;
 	}
 	
 	//adelante 
-	x1 = cell->x + dirH;
-	y1 = cell->y + dirV;
-	if (Maze[x1][y1].state != 'w' && not Maze[x1][y1].tempMark) {
-		//cout << "pre adelante " << x1 << " , " << y1 << " is " << Maze[x1][y1].state << " and " << Maze[x1][y1].tempMark << endl;
-		Position nextPos(x1, y1);
+	positionX = cell->x + dirH;
+	positionY = cell->y + dirV;
+	if (Maze[positionX][positionY].state != 'w' && not Maze[positionX][positionY].passedBy) {
+		Position nextPos(positionX, positionY);
 		return nextPos;
 	}
 	//izquierda
 	if (dirH == 0) {
-		x1 = cell->x + dirV;
-		y1 = cell->y;
+		positionX = cell->x + dirV;
+		positionY = cell->y;
 	}
 	else {
-		x1 = cell->x;
-		y1 = cell->y - dirH;
+		positionX = cell->x;
+		positionY = cell->y - dirH;
 	}
 	
-	if (Maze[x1][y1].state != 'w' && not Maze[x1][y1].tempMark) {
-		//cout << "izquierda " << x1 << " , " << y1 << " is " << Maze[x1][y1].state << " and " << Maze[x1][y1].tempMark << endl;
-		Position nextPos(x1, y1);
+	if (Maze[positionX][positionY].state != 'w' && not Maze[positionX][positionY].passedBy) {
+		Position nextPos(positionX, positionY);
+		return nextPos;
+	}  
+
+	//atras (when the maze starts in an itersection of four sides)
+	positionX = cell->x - dirH;
+	positionY = cell->y - dirV;
+	if (Maze[positionX][positionY].state != 'w' && not Maze[positionX][positionY].passedBy) {
+		Position nextPos(positionX, positionY);
 		return nextPos;
 	}
-	//cout << "Saco" << endl;
-	stackLifo.pop();
 	
-	x1 = -1;
-	y1 = -1;
-	//cout << "Return back" << endl;
-	Position nextPos(x1, y1);
+	positionX = -1;
+	positionY = -1;
+	Position nextPos(positionX, positionY);
 	return nextPos;
 }
 
 
-bool SolveMazeLIFO(MazeCell* cell, MazeCell* lastCell) { 
-	//cout << "Pongo" << endl;
+bool SolveMazeLIFO(MazeCell* cell, MazeCell* lastCell) {  
 	stackLifo.push(Maze[cell->x][cell->y]);
-	if (cell->state == 'f') {
-		cout << "Exit founded on " << cell->x << " , " << cell->y << endl;
+	if (cell->state == 'f') { 
 		return true;
 	}
-	bool salida = false;
-	cell->tempMark = true;
-	Position nextPos = NextMove(cell, lastCell);
-	//cout << "Next position " << nextPos.x << " , " << nextPos.y << endl;
-	while ((nextPos.x != -1 and nextPos.y != -1) and not salida) {
-		salida = SolveMazeLIFO(&Maze[nextPos.x][nextPos.y], cell);
-		if (not salida) {
-			nextPos = NextMove(cell, lastCell);
-			//cout << "Next position " << nextPos.x << " , " << nextPos.y << endl;
+	bool isExit = false;
+	cell->passedBy = true;
+	Position nextPosition = NextPossibleMove(cell, lastCell); 
+	while ((nextPosition.x != -1 and nextPosition.y != -1) and not isExit) {
+		isExit = SolveMazeLIFO(&Maze[nextPosition.x][nextPosition.y], cell);
+		if (not isExit) {
+			nextPosition = NextPossibleMove(cell, lastCell);
+		} else if (nextPosition.x == -1 and nextPosition.y == -1) {
+			stackLifo.pop();
 		}
 	} 
-	return salida;
+	return isExit;
 }
 
-
-bool DetectIntersection(MazeCell* cell, MazeCell* lastCell){
-	int dirH = cell->x - lastCell->x;
-	int dirV = cell->y - lastCell->y;
-	int x1 = -1;
-	int y1 = -1;
-
-	int numRoutes=0;
-
-	//derecha
-	if (dirH == 0) {
-		x1 = cell->x - dirV;
-		y1 = cell->y;
-	}
-	else {
-		x1 = cell->x;
-		y1 = cell->y - dirH;
-	}
-	if (Maze[x1][y1].state == 'c' && not Maze[x1][y1].tempMark) {
-		numRoutes++;
-	}
-
-	//adelante 
-	x1 = cell->x + dirV;
-	y1 = cell->y + dirH;
-	if (Maze[x1][y1].state == 'c' && not Maze[x1][y1].tempMark) {
-		numRoutes++;
-	}
-
-	//izquierda
-	if (dirH == 0) {
-		x1 = cell->x + dirV;
-		y1 = cell->y;
-	}
-	else {
-		x1 = cell->x;
-		y1 = cell->y + dirH;
-	}
-	if (Maze[x1][y1].state == 'c' && not Maze[x1][y1].tempMark) {
-		numRoutes++;
-	}
-
-	if (numRoutes > 1) {
-		return true;
-	}
-	return false;
-}
-
-bool SolveMazeFIFO(MazeCell cell) {
-	vector<MazeCell> queue;
-	queue.push_back(cell);
-	MazeCell currentPos = queue.front();
-	MazeCell lastCell = currentPos;
-	while (currentPos.state != 'f') {
-		Position nextPos = NextMove(&cell, &lastCell);
-		while ((nextPos.x != -1 and nextPos.y != -1)) {
-			queue.push_back(Maze[nextPos.x][nextPos.y]);
-			nextPos = NextMove(&cell, &lastCell);
-		}
-		lastCell = currentPos;
-	}
+bool SolveMazeFIFO(MazeCell cell) { 
+	queueFifo.push(QueueElement(cell, cell));
+	MazeCell currentPosition = queueFifo.front().currentPosition;
+	MazeCell lastCell = queueFifo.front().lastPosition;
+	Position nextPosition(0,0);
+	do{
+		currentPosition = queueFifo.front().currentPosition;
+		lastCell = queueFifo.front().lastPosition;
+		queueFifo.pop(); 
+		do { 
+			nextPosition = NextPossibleMove(&currentPosition, &lastCell);
+			if (nextPosition.x != -1 and nextPosition.y != -1) {
+				queueFifo.push(QueueElement(Maze[nextPosition.x][nextPosition.y], Maze[currentPosition.x][currentPosition.y]));
+				Maze[nextPosition.x][nextPosition.y].passedBy = true;
+			}
+		} while ((nextPosition.x != -1 and nextPosition.y != -1));
+	} while (currentPosition.state != 'f');
+	PrintQueue();
 	return true;
 }
